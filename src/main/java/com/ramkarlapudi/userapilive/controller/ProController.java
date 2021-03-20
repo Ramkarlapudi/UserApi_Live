@@ -17,7 +17,7 @@ import com.ramkarlapudi.userapilive.service.UserServiceImpl;
 
 @RestController
 @RequestMapping("/user-service")
-@CrossOrigin(origins = "http://userlive-fullstackapp.s3-website-us-east-1.amazonaws.com", allowedHeaders = "*")
+@CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*")
 public class ProController {
 	@Autowired
 	private UserServiceImpl userServiceImpl;
@@ -26,35 +26,43 @@ public class ProController {
 	public String getUserData() {
 		return "Ram Karlapudi";
 	}
-	
-	
-	
-	
-	@GetMapping("/getusers" )
+
+	@GetMapping("/getusers")
 	public ArrayList<UserProfileEntity> getusers() {
-	
+
 		return userServiceImpl.getAllUsers();
-		
+
 	}
-	
+
 	@GetMapping("/getusersbyname/{name}")
-	public UserProfileEntity getUserbyName(@PathVariable("name")  String name) {
-		System.out.println("calling getUserbyName "+ name);
-		UserProfileEntity userList =	userServiceImpl.getUserBYname(name);
-		if(userList == null) {
-			 throw new com.ramkarlapudi.userapilive.exception.UserExceptions("User Not found");
+	public UserProfileEntity getUserbyName(@PathVariable("name") String name) {
+		System.out.println("calling getUserbyName " + name);
+		UserProfileEntity userList = userServiceImpl.getUserBYname(name);
+		if (userList == null) {
+			throw new com.ramkarlapudi.userapilive.exception.UserExceptions("User Not found");
 		}
 		return userList;
-		
+
 	}
-	
+
 	@PostMapping("/uploadProfile")
-	public UserProfileEntity uploadEntity(@RequestBody UserProfileEntity userProfileEntity ) {
-		System.out.println("calling uploadProfile "+ userProfileEntity.toString());
-		UserProfileEntity user =	userServiceImpl.uploadUser(userProfileEntity);
-		if(user == null) {
-			throw new UserExceptions("User Not Found for the UserID: "+userProfileEntity.getUserid());
+	public UserProfileEntity uploadEntity(@RequestBody UserProfileEntity userProfileEntity) {
+		System.out.println("calling uploadProfile " + userProfileEntity.toString());
+		UserProfileEntity user = userServiceImpl.uploadUser(userProfileEntity);
+		if (user == null) {
+			throw new UserExceptions("User Not Found for the UserID: " + userProfileEntity.getUserid());
 		}
 		return user;
+	}
+
+	@PostMapping("/Rigester")
+	public UserProfileEntity userRegistration(@RequestBody UserProfileEntity userProfileEntity) {
+		if (userProfileEntity != null) {
+			userProfileEntity.setVerified("NO");
+		  return	userServiceImpl.registerUser(userProfileEntity);
+		} else {
+			throw new UserExceptions("User Data is Empty to Register ");
+		}
+
 	}
 }

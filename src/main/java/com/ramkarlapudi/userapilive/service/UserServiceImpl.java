@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.ramkarlapudi.userapilive.entity.UserProfileEntity;
 import com.ramkarlapudi.userapilive.exception.UserExceptions;
@@ -84,6 +85,10 @@ public class UserServiceImpl implements UserService {
 		System.out.println("Exiting uploadUser from service");
 		return null;
 
+	}
+	
+	public UserProfileEntity registerUser( UserProfileEntity userProfileEntity) {
+		 return userProfileRepo.save(userProfileEntity);
 	}
 
 }
