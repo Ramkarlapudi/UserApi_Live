@@ -1,0 +1,21 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto8
+  pre_build:
+      commands:
+      - echo pre_build   
+  build:
+    commands:
+      - echo Build started on `date`
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - mvn clean package
+      - echo build
+artifacts:
+  files:
+    - target/UserAPILIVE-0.0.1-SNAPSHOT.jar
+  

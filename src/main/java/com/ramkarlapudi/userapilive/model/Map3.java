@@ -5,6 +5,12 @@ public class Map3 {
 	public boolean isBatting;
 	public int id;
 	public String shortName;
+	
+	
+    
+    //
+	
+	
 	public String getName() {
 		return name;
 	}
@@ -33,6 +39,8 @@ public class Map3 {
 	public String toString() {
 		return "Map3 [name=" + name + ", isBatting=" + isBatting + ", id=" + id + ", shortName=" + shortName + "]";
 	}
+	
+	
 	
 	
 }

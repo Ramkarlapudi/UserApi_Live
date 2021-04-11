@@ -20,12 +20,14 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.ramkarlapudi.userapilive.model.AwayTeam;
 import com.ramkarlapudi.userapilive.model.HomeTeam;
+import com.ramkarlapudi.userapilive.model.Innings;
 import com.ramkarlapudi.userapilive.model.Map2;
 import com.ramkarlapudi.userapilive.model.MyArrayList;
 import com.ramkarlapudi.userapilive.model.MyArrayListPlayersData;
 import com.ramkarlapudi.userapilive.model.Root;
 import com.ramkarlapudi.userapilive.model.Series;
 import com.ramkarlapudi.userapilive.model.Venue;
+import com.ramkarlapudi.userapilive.model.map;
 import com.ramkarlapudi.userapilive.util.LiveScoreConstants;
 
 @Component
@@ -46,7 +48,7 @@ public class LiveScoreServiceImpl implements LiveScoreService, LiveScoreConstant
 	@SuppressWarnings("unchecked")
 	private HttpResponse<JsonNode> response = null;
 	private String searchapiurl = null;
-	private int p =0;
+	private int c = 0;
 
 	public String setup(String processName) throws IOException, UnirestException {
 		LOGGER.info("  ********** Entering  setup ********* ");
@@ -70,7 +72,7 @@ public class LiveScoreServiceImpl implements LiveScoreService, LiveScoreConstant
 			case "playerSearch":
 				LOGGER.info("  ********** Entering  playerSearch case********* ");
 				response = Unirest
-						.get("https://dev132-cricket-live-scores-v1.p.rapidapi.com/playersbyteam.php?teamid=3")
+						.get(PLAYER_SEARCH_API + c)
 						.header("x-rapidapi-key", "e0c34d9a36msh7bb0545fbfa765cp1f416cjsn72c335f15dc6")
 						.header("x-rapidapi-host", "dev132-cricket-live-scores-v1.p.rapidapi.com").asJson();
 				currentJsonBody = mapper
@@ -84,6 +86,24 @@ public class LiveScoreServiceImpl implements LiveScoreService, LiveScoreConstant
 						.writeValueAsString(response.getBody().getObject().getJSONObject("teamPlayers"));
 
 				break;
+			case SCORE_CARD:
+				LOGGER.info("  ********** Fetching  live  Scores********* ");
+				response = Unirest.get(SCORE_CARD_API).header("x-rapidapi-key", apiKey)
+						.header("x-rapidapi-host", apiHost).asJson();
+				currentJsonBody = mapper.writeValueAsString(response.getBody().getObject().getJSONObject("fullScorecard"));
+				break;
+			case MATCHLIVE:
+				LOGGER.info("  ********** Fetching  live  Scores********* ");
+				response = Unirest.get(MATCH_BY_MATCHID).header("x-rapidapi-key", apiKey)
+						.header("x-rapidapi-host", apiHost).asJson();
+				currentJsonBody = mapper.writeValueAsString(response.getBody().getObject());
+				break;
+			case COMMENTARY:
+				LOGGER.info("  ********** Fetching  live  Commentary********* ");
+				response = Unirest.get(COMMENTARY_API).header("x-rapidapi-key", apiKey)
+						.header("x-rapidapi-host", apiHost).asJson();
+				currentJsonBody = mapper.writeValueAsString(response.getBody().getObject());
+				break;	
 
 			default:
 				break;
@@ -144,6 +164,13 @@ public class LiveScoreServiceImpl implements LiveScoreService, LiveScoreConstant
 
 			liveMatches = matchesList.stream().filter(m -> m.getMap().getStatus().equals("LIVE"))
 					.collect(Collectors.toList());
+			LOGGER.info("*******Series ID     ");
+			// liveMatches.stream().forEach(s->s.getMap().series.getMap().getId());
+
+			liveMatches.stream().forEach(s -> System.out.println(s.getMap().series.getMap().getId()));
+			LOGGER.info("*******Match ID     ");
+			liveMatches.stream().forEach(s -> System.out.println(s.getMap().id));
+
 			LOGGER.info("*******liveMatches List   " + liveMatches.size());
 		} catch (IOException | UnirestException e) {
 			e.printStackTrace();
@@ -152,21 +179,79 @@ public class LiveScoreServiceImpl implements LiveScoreService, LiveScoreConstant
 
 		return liveMatches;
 	}
+	/*
+	 * 1 AUSTRALIA 2 ENGLAND 3 INDIA 4 NEWZELAND 5 PAKISTAN 6 SOUTHAFRICA 7 SRILANKA
+	 * 8 WESTINDIES 9 Zimbabwe 10 Bangladesh 11 CANADA 13 KENYA 14 Netherlands 15
+	 * Scotland
+	 */
 
-	public List<MyArrayListPlayersData> getPlayers() {
-		LOGGER.info("*******Entering getPlayers from Service **");
-		String Players = null;
+	public List<MyArrayListPlayersData> getPlayers(String countryname) {
+		LOGGER.info("*******Entering getPlayers from Service ** CountryName " + countryname);
+
 		List<MyArrayListPlayersData> playersList = null;
+		String country = countryname.toUpperCase();
 		try {
-			Players = setup("playerSearch");
-			Gson gson = new Gson();
-			Root Playersdata = gson.fromJson(currentJsonBody, Root.class);
-			playersList = Playersdata.getMap().getPlayers().getMyArrayList();
-			LOGGER.info("list size " + playersList.size());
-			for (MyArrayListPlayersData myArrayList : playersList) {
-				Map2 players = myArrayList.getMap();
-				// System.out.println("Players data" + players.toString());
+			switch (country) {
+			case "AUSTRALIA":
+				c = 1;
+				playersList = getCountryWisePlayers();
+				break;
+			case "ENGLAND":
+				c = 2;
+				playersList = getCountryWisePlayers();
+				break;
+			case "INDIA":
+				c = 3;
+				playersList = getCountryWisePlayers();
+				break;
+			case "NEWZELAND":
+				c = 4;
+				playersList = getCountryWisePlayers();
+				break;
+			case "PAKISTAN":
+				c = 5;
+				playersList = getCountryWisePlayers();
+				break;
+			case "SOUTHAFRICA":
+				c = 6;
+				playersList = getCountryWisePlayers();
+				break;
+			case "SRILANKA":
+				c = 7;
+				playersList = getCountryWisePlayers();
+				break;
+			case "WESTINDIES":
+				c = 8;
+				playersList = getCountryWisePlayers();
+				break;
+			case "ZIMBABWE":
+				c = 9;
+				playersList = getCountryWisePlayers();
+				break;
+			case "BANGLADESH":
+				c = 10;
+				playersList = getCountryWisePlayers();
+				break;
+			case "CANADA":
+				c = 11;
+				playersList = getCountryWisePlayers();
+				break;
+			case "KENYA":
+				c = 13;
+				playersList = getCountryWisePlayers();
+				break;
+			case "NETHERLANDS":
+				c = 14;
+				playersList = getCountryWisePlayers();
+				break;
+			case "SCOTLAND":
+				c = 15;
+				playersList = getCountryWisePlayers();
+				break;
+			default:
+				break;
 			}
+
 		} catch (IOException | UnirestException e) {
 			e.printStackTrace();
 			LOGGER.error("Error while fetching Players Data " + e);
@@ -175,6 +260,23 @@ public class LiveScoreServiceImpl implements LiveScoreService, LiveScoreConstant
 		LOGGER.info("*******Exiting  getPlayers from Service Returing List **" + playersList.size());
 		return playersList;
 
+	}
+
+	public List<MyArrayListPlayersData> getCountryWisePlayers() throws IOException, UnirestException {
+		LOGGER.info("*******Entering getCountryWisePlayers from Service ** CountryName ");
+		String Players = null;
+		Players = setup("playerSearch");
+		Gson gson = new Gson();
+		Root Playersdata = gson.fromJson(currentJsonBody, Root.class);
+		List<MyArrayListPlayersData> playersList = Playersdata.getMap().getPlayers().getMyArrayList();
+		LOGGER.info("list size " + playersList.size());
+		for (MyArrayListPlayersData myArrayList : playersList) {
+			Map2 players = myArrayList.getMap();
+			// System.out.println("Players data" + players.toString());
+		}
+		c = 0;
+		LOGGER.info("*******Exiting getCountryWisePlayers from Service ** CountryName ");
+		return playersList;
 	}
 
 	public List<MyArrayListPlayersData> getPlayerByName(String playerName) {
@@ -209,6 +311,39 @@ public class LiveScoreServiceImpl implements LiveScoreService, LiveScoreConstant
 		}
 
 		return SearchList;
+
+	}
+
+	public com.ramkarlapudi.userapilive.DTO.Root getLiveScores() throws IOException, UnirestException {
+		String jsonData = null;
+
+		jsonData = setup(MATCHLIVE);
+		Gson gson = new Gson();
+		com.ramkarlapudi.userapilive.DTO.Root liveScoreData = gson.fromJson(currentJsonBody, com.ramkarlapudi.userapilive.DTO.Root.class);
+		//map sc = liveScoreData.getMap();
+		return liveScoreData;
+
+	}
+	
+	
+	public String getLiveScores1() throws IOException, UnirestException {
+		String jsonData = null;
+
+		jsonData = setup(MATCHLIVE);
+		Gson gson = new Gson();
+		com.ramkarlapudi.userapilive.DTO.Root liveScoreData = gson.fromJson(currentJsonBody, com.ramkarlapudi.userapilive.DTO.Root.class);
+		//map sc = liveScoreData.getMap();
+		return jsonData;
+
+	}
+	
+	public String getLiveCommentary() throws IOException, UnirestException {
+		String jsonData = null;
+		jsonData = setup(COMMENTARY);
+		Gson gson = new Gson();
+		com.ramkarlapudi.userapilive.DTO.Root liveScoreData = gson.fromJson(currentJsonBody, com.ramkarlapudi.userapilive.DTO.Root.class);
+		//map sc = liveScoreData.getMap();
+		return jsonData;
 
 	}
 

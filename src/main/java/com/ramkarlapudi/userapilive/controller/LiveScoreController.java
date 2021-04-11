@@ -13,8 +13,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mashape.unirest.http.exceptions.UnirestException;
+import com.ramkarlapudi.userapilive.model.Innings;
 import com.ramkarlapudi.userapilive.model.MyArrayList;
 import com.ramkarlapudi.userapilive.model.MyArrayListPlayersData;
+import com.ramkarlapudi.userapilive.model.Root;
+import com.ramkarlapudi.userapilive.model.map;
 import com.ramkarlapudi.userapilive.service.LiveScoreServiceImpl;
 
 @RestController
@@ -39,10 +43,10 @@ public class LiveScoreController {
 
 	}
 
-	@GetMapping(value = "/playersearch", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<MyArrayListPlayersData> getPlayers() {
+	@GetMapping(value = "/playersearchByCountry/{countryName}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<MyArrayListPlayersData> getPlayers(@PathVariable("countryName") String countryName) {
 		LOGGER.info("  ********** Entering  getPlayers from Controller ********* ");
-		return liveScoreServiceImpl.getPlayers();
+		return liveScoreServiceImpl.getPlayers(countryName);
 	}
 
 	@GetMapping(value = "/searchbyname/{playerName}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -63,5 +67,21 @@ public class LiveScoreController {
 		return playerData;
 
 	}
+
+	@GetMapping(value = "/getScoreCard", produces = MediaType.APPLICATION_JSON_VALUE)
+	public com.ramkarlapudi.userapilive.DTO.Root  getScoreCard() throws IOException, UnirestException {
+		LOGGER.info("  ********** Entering getScoreCard  from Controller ********* ");
+		return liveScoreServiceImpl.getLiveScores();
+	}
+	
+	
+	
+	@GetMapping(value = "/getLiveCommentary", produces = MediaType.APPLICATION_JSON_VALUE)
+	public String  getCommentary() throws IOException, UnirestException {
+		LOGGER.info("  ********** Entering getCommentary  from Controller ********* ");
+		return liveScoreServiceImpl.getLiveCommentary();
+	}
+	
+	
 
 }

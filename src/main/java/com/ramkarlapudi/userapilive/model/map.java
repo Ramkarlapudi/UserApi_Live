@@ -32,6 +32,11 @@ public class map {
 	public boolean isGamedayEnabled;
 	public String status;
 	public Players players;
+	
+	
+	
+	
+	
 	public Players getPlayers() {
 		return players;
 	}
