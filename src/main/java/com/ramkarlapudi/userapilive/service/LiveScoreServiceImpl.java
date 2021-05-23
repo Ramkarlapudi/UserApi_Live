@@ -18,6 +18,11 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.ramkarlapudi.userapilive.commentaryDTO.Commentary;
+import com.ramkarlapudi.userapilive.commentaryDTO.Map;
+import com.ramkarlapudi.userapilive.commentaryDTO.MyArray;
+import com.ramkarlapudi.userapilive.commentaryDTO.Overs;
+import com.ramkarlapudi.userapilive.commentaryDTO.OversWithCommentary;
 import com.ramkarlapudi.userapilive.model.AwayTeam;
 import com.ramkarlapudi.userapilive.model.HomeTeam;
 import com.ramkarlapudi.userapilive.model.Innings;
@@ -49,6 +54,8 @@ public class LiveScoreServiceImpl implements LiveScoreService, LiveScoreConstant
 	private HttpResponse<JsonNode> response = null;
 	private String searchapiurl = null;
 	private int c = 0;
+	com.ramkarlapudi.userapilive.commentaryDTO.Root liveScoreData = null;
+	OversWithCommentary oversWithCommentary = null;
 
 	public String setup(String processName) throws IOException, UnirestException {
 		LOGGER.info("  ********** Entering  setup ********* ");
@@ -71,8 +78,7 @@ public class LiveScoreServiceImpl implements LiveScoreService, LiveScoreConstant
 				break;
 			case "playerSearch":
 				LOGGER.info("  ********** Entering  playerSearch case********* ");
-				response = Unirest
-						.get(PLAYER_SEARCH_API + c)
+				response = Unirest.get(PLAYER_SEARCH_API + c)
 						.header("x-rapidapi-key", "e0c34d9a36msh7bb0545fbfa765cp1f416cjsn72c335f15dc6")
 						.header("x-rapidapi-host", "dev132-cricket-live-scores-v1.p.rapidapi.com").asJson();
 				currentJsonBody = mapper
@@ -90,7 +96,8 @@ public class LiveScoreServiceImpl implements LiveScoreService, LiveScoreConstant
 				LOGGER.info("  ********** Fetching  live  Scores********* ");
 				response = Unirest.get(SCORE_CARD_API).header("x-rapidapi-key", apiKey)
 						.header("x-rapidapi-host", apiHost).asJson();
-				currentJsonBody = mapper.writeValueAsString(response.getBody().getObject().getJSONObject("fullScorecard"));
+				currentJsonBody = mapper
+						.writeValueAsString(response.getBody().getObject().getJSONObject("fullScorecard"));
 				break;
 			case MATCHLIVE:
 				LOGGER.info("  ********** Fetching  live  Scores********* ");
@@ -103,7 +110,7 @@ public class LiveScoreServiceImpl implements LiveScoreService, LiveScoreConstant
 				response = Unirest.get(COMMENTARY_API).header("x-rapidapi-key", apiKey)
 						.header("x-rapidapi-host", apiHost).asJson();
 				currentJsonBody = mapper.writeValueAsString(response.getBody().getObject());
-				break;	
+				break;
 
 			default:
 				break;
@@ -319,31 +326,54 @@ public class LiveScoreServiceImpl implements LiveScoreService, LiveScoreConstant
 
 		jsonData = setup(MATCHLIVE);
 		Gson gson = new Gson();
-		com.ramkarlapudi.userapilive.DTO.Root liveScoreData = gson.fromJson(currentJsonBody, com.ramkarlapudi.userapilive.DTO.Root.class);
-		//map sc = liveScoreData.getMap();
+		com.ramkarlapudi.userapilive.DTO.Root liveScoreData = gson.fromJson(currentJsonBody,
+				com.ramkarlapudi.userapilive.DTO.Root.class);
+		// map sc = liveScoreData.getMap();
 		return liveScoreData;
 
 	}
-	
-	
+
 	public String getLiveScores1() throws IOException, UnirestException {
 		String jsonData = null;
 
 		jsonData = setup(MATCHLIVE);
 		Gson gson = new Gson();
-		com.ramkarlapudi.userapilive.DTO.Root liveScoreData = gson.fromJson(currentJsonBody, com.ramkarlapudi.userapilive.DTO.Root.class);
-		//map sc = liveScoreData.getMap();
+		com.ramkarlapudi.userapilive.DTO.Root liveScoreData = gson.fromJson(currentJsonBody,
+				com.ramkarlapudi.userapilive.DTO.Root.class);
+		// map sc = liveScoreData.getMap();
 		return jsonData;
 
 	}
-	
-	public String getLiveCommentary() throws IOException, UnirestException {
+
+	public com.ramkarlapudi.userapilive.commentaryDTO.Root getLiveCommentary() throws IOException, UnirestException {
 		String jsonData = null;
 		jsonData = setup(COMMENTARY);
 		Gson gson = new Gson();
-		com.ramkarlapudi.userapilive.DTO.Root liveScoreData = gson.fromJson(currentJsonBody, com.ramkarlapudi.userapilive.DTO.Root.class);
-		//map sc = liveScoreData.getMap();
-		return jsonData;
+		liveScoreData = gson.fromJson(currentJsonBody, com.ramkarlapudi.userapilive.commentaryDTO.Root.class);
+		// map sc = liveScoreData.getMap();
+		loadOverswithCommentary();
+		return liveScoreData;
+
+	}
+
+	public void loadOverswithCommentary() throws IOException, UnirestException {
+		if (liveScoreData == null) {
+			liveScoreData = getLiveCommentary();
+		}
+		List<MyArray> oversList = null;
+		Overs overs = null;
+		Commentary commentaryObj = liveScoreData.getMap().getCommentary();
+		//get innigs List
+		List<MyArray> inningsList = commentaryObj.getMap().getInnings().getMyArrayList();
+		System.out.println("Innings Size "+inningsList.size());
+		for (MyArray myArray : inningsList) {
+		
+		 Map inningsData =	myArray.getMap();
+		 System.out.println(inningsData.getId());
+		 overs = inningsData.getOvers();
+		 oversList = overs.getMyArrayList();
+		 
+		}
 
 	}
 

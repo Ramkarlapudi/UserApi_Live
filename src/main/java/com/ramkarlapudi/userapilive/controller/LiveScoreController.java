@@ -77,8 +77,14 @@ public class LiveScoreController {
 	
 	
 	@GetMapping(value = "/getLiveCommentary", produces = MediaType.APPLICATION_JSON_VALUE)
-	public String  getCommentary() throws IOException, UnirestException {
+	public com.ramkarlapudi.userapilive.commentaryDTO.Root  getCommentary() throws IOException, UnirestException {
 		LOGGER.info("  ********** Entering getCommentary  from Controller ********* ");
+		return liveScoreServiceImpl.getLiveCommentary();
+	}
+	
+	@GetMapping(value = "/getOverswithCommentary", produces = MediaType.APPLICATION_JSON_VALUE)
+	public com.ramkarlapudi.userapilive.commentaryDTO.Root  getOverswithCommentary() throws IOException, UnirestException {
+		LOGGER.info("  ********** Entering getOverswithCommentary  from Controller ********* ");
 		return liveScoreServiceImpl.getLiveCommentary();
 	}
 	
